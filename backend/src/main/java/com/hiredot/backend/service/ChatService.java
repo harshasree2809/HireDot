@@ -12,7 +12,7 @@ import java.util.List;
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
-    private final GeminiService geminiService;
+    private final GroqService groqService;
 
     public ChatMessage sendMessage(String userId, String userMessage) {
         // Save user message
@@ -37,7 +37,7 @@ public class ChatService {
         }
         contextBuilder.append("user: ").append(userMessage);
 
-        String aiResponse = geminiService.generateText(contextBuilder.toString());
+        String aiResponse = groqService.generateText(contextBuilder.toString());
 
         // Save AI response
         ChatMessage aiMsg = ChatMessage.builder()

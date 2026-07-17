@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AtsService {
-
-    private final GeminiService geminiService;
+    private final GroqService groqService;
 
     public String analyzeAts(String resumeText, String jobDescription) {
         String prompt = """
@@ -30,6 +29,6 @@ public class AtsService {
                 Resume:
                 """ + resumeText + "\n\nJob Description:\n" + jobDescription +
                 "\n\nIMPORTANT: Respond with ONLY valid JSON. No markdown, no code fences, no explanation - just the raw JSON object.";
-        return geminiService.generateContent(prompt);
+        return groqService.generateContent(prompt);
     }
 }

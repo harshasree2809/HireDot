@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class InterviewService {
 
-    private final GeminiService geminiService;
+    private final GroqService groqService;
 
     public String generateInterviewQuestions(String jobTitle, String jobDescription, String difficulty, int count) {
         String prompt = "You are an expert technical interviewer.\n" +
@@ -27,6 +27,6 @@ public class InterviewService {
                 "}\n\n" +
                 "Job Description:\n" + jobDescription +
                 "\n\nRespond with ONLY valid JSON, no markdown.";
-        return geminiService.generateContent(prompt);
+        return groqService.generateContent(prompt);
     }
 }

@@ -35,11 +35,11 @@ export function getErrorMessage(err: any): string {
     case 401:
       return '🔐 You are not logged in or your session expired. Please log out and sign in again.';
     case 402:
-      return '💳 AI credit limit reached. The OpenRouter API key has run out of credits. Please top up at openrouter.ai/settings/credits.';
+      return '💳 Not enough AI credits or Rate Limit reached. Please check your Groq API limits.';
     case 403:
       return '🚫 Access denied. You do not have permission to perform this action.';
     case 404:
-      return '🔍 AI model not found. The AI model name may be wrong. Please contact support.';
+      return '🤖 AI Model not found. The model name is wrong. Update GROQ_MODEL on Render to: llama-3.3-70b-versatile';
     case 429:
       return '🐢 Too many requests. You are sending requests too fast. Please wait 30 seconds and try again.';
     case 500:
@@ -54,14 +54,14 @@ export function getErrorMessage(err: any): string {
   if (typeof serverMsg === 'string') {
     const lower = serverMsg.toLowerCase();
 
-    if (lower.includes('api key') || lower.includes('invalid key') || lower.includes('unauthorized') || lower.includes('gemini_api_key')) {
-      return '🔑 Invalid API Key. The AI service rejected the key. Please check GEMINI_API_KEY on your backend (Render / local .env).';
+    if (lower.includes('api key') || lower.includes('invalid key') || lower.includes('unauthorized') || lower.includes('groq_api_key')) {
+      return '🔑 Invalid API Key. The AI service rejected the key. Please check GROQ_API_KEY on Render.';
     }
     if (lower.includes('credit') || lower.includes('afford') || lower.includes('billing') || lower.includes('quota')) {
-      return '💳 AI quota/credits issue. Check Google AI Studio usage limits, or set up billing if you exceeded the free tier.';
+      return '💳 AI quota/credits issue. Please check your Groq account limits.';
     }
     if (lower.includes('model') && lower.includes('not found')) {
-      return '🤖 AI Model not found. Backend must use gemini-flash-latest. Redeploy the backend on Render.';
+      return '🤖 AI Model not found. Backend must use a supported Groq model. Redeploy the backend on Render.';
     }
     if (lower.includes('empty response') || lower.includes('incomplete') || lower.includes('could not parse')) {
       return `⚠️ ${serverMsg}`;

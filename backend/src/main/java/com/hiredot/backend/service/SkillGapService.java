@@ -9,7 +9,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SkillGapService {
 
-    private final GeminiService geminiService;
+    private final GroqService groqService;
 
     public String analyzeSkillGap(String jobDescription, List<String> userSkills) {
         String skillsStr = String.join(", ", userSkills);
@@ -35,6 +35,6 @@ public class SkillGapService {
 
                 Candidate's current skills: """ + skillsStr + "\nJob Description:\n" + jobDescription +
                 "\n\nRespond with ONLY valid JSON, no markdown.";
-        return geminiService.generateContent(prompt);
+        return groqService.generateContent(prompt);
     }
 }

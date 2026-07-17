@@ -17,7 +17,7 @@ public class ResumeService {
     private final ResumeVersionRepository resumeVersionRepository;
     private final CloudinaryService cloudinaryService;
     private final PdfParsingService pdfParsingService;
-    private final GeminiService geminiService;
+    private final GroqService groqService;
 
     public ResumeVersion uploadResume(String userId, MultipartFile file, String versionName) throws IOException {
         String parsedText = pdfParsingService.extractTextFromPdf(file);
@@ -49,6 +49,6 @@ public class ResumeService {
                 Resume:
                 """ + resumeText + "\n\nJob Description:\n" + jobDescription +
                 "\n\nProvide the tailored resume in a clean, professional format.";
-        return geminiService.generateText(prompt);
+        return groqService.generateText(prompt);
     }
 }

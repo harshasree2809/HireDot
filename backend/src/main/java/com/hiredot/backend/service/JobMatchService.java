@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JobMatchService {
 
-    private final GeminiService geminiService;
+    private final GroqService groqService;
 
     public String matchJob(String resumeText, String jobDescription) {
         String prompt = """
@@ -26,7 +26,7 @@ public class JobMatchService {
                 Resume/Profile:
                 """ + resumeText + "\n\nJob Description:\n" + jobDescription +
                 "\n\nRespond with ONLY valid JSON, no markdown.";
-        return geminiService.generateContent(prompt);
+        return groqService.generateContent(prompt);
     }
 
     public String analyzeJobDescription(String jobDescription) {
@@ -46,6 +46,6 @@ public class JobMatchService {
                 }
                 Job Description:
                 """ + jobDescription + "\n\nRespond with ONLY valid JSON, no markdown.";
-        return geminiService.generateContent(prompt);
+        return groqService.generateContent(prompt);
     }
 }
