@@ -6,9 +6,7 @@ export const resumeService = {
     const formData = new FormData();
     formData.append('file', file);
     if (versionName) formData.append('versionName', versionName);
-    const res = await api.post('/resume/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await api.post('/resume/upload', formData);
     return res.data;
   },
   getVersions: async (): Promise<ResumeVersion[]> => {
