@@ -54,14 +54,17 @@ export function getErrorMessage(err: any): string {
   if (typeof serverMsg === 'string') {
     const lower = serverMsg.toLowerCase();
 
-    if (lower.includes('api key') || lower.includes('invalid key') || lower.includes('unauthorized')) {
-      return '🔑 Invalid API Key. The AI service rejected the key. Please check OPENROUTER_API_KEY on Render.';
+    if (lower.includes('api key') || lower.includes('invalid key') || lower.includes('unauthorized') || lower.includes('gemini_api_key')) {
+      return '🔑 Invalid API Key. The AI service rejected the key. Please check GEMINI_API_KEY on your backend (Render / local .env).';
     }
-    if (lower.includes('credit') || lower.includes('afford') || lower.includes('billing')) {
-      return '💳 Not enough AI credits. Please go to openrouter.ai/settings/credits and add credits to your account.';
+    if (lower.includes('credit') || lower.includes('afford') || lower.includes('billing') || lower.includes('quota')) {
+      return '💳 AI quota/credits issue. Check Google AI Studio usage limits, or set up billing if you exceeded the free tier.';
     }
     if (lower.includes('model') && lower.includes('not found')) {
-      return '🤖 AI Model not found. The model name is wrong. Update OPENROUTER_MODEL on Render to: google/gemini-2.5-flash';
+      return '🤖 AI Model not found. Confirm the backend uses a valid Gemini model (e.g. gemini-2.5-flash).';
+    }
+    if (lower.includes('empty response') || lower.includes('incomplete') || lower.includes('could not parse')) {
+      return `⚠️ ${serverMsg}`;
     }
     if (lower.includes('rate limit') || lower.includes('too many')) {
       return '🐢 Rate limited by the AI provider. Please wait 30 seconds and try again.';

@@ -105,7 +105,7 @@ export default function JobMatchPage() {
       </button>
 
       <AnimatePresence>
-        {result && (
+        {result && result.matchScore != null && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {/* Match Score */}
             <div className="section-card" style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>

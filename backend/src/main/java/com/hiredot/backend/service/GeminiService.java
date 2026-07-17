@@ -2,6 +2,7 @@ package com.hiredot.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -27,15 +28,22 @@ public class GeminiService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public String generateContent(String prompt) {
+        if (apiKey == null || apiKey.isBlank() || apiKey.startsWith("your-gemini") || apiKey.startsWith("your_gemini")) {
+            throw new RuntimeException("GEMINI_API_KEY is missing. Add your Google AI Studio key to the backend environment.");
+        }
+
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            String url = API_URL + "?key=" + apiKey;
+            String url = API_URL + "?key=" + apiKey.trim();
             HttpPost request = new HttpPost(url);
             request.setHeader("Content-Type", "application/json");
 
-            String body = "{" +
-                    "\"contents\":[{\"parts\":[{\"text\":\"" + escapeJson(prompt) + "\"}]}]," +
-                    "\"generationConfig\": {\"responseMimeType\": \"application/json\"}" +
-                    "}";
+            ObjectNode root = objectMapper.createObjectNode();
+            ObjectNode content = root.putArray("contents").addObject();
+            content.putArray("parts").addObject().put("text", prompt);
+            ObjectNode generationConfig = root.putObject("generationConfig");
+            generationConfig.put("responseMimeType", "application/json");
+
+            String body = objectMapper.writeValueAsString(root);
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
 
             return httpClient.execute(request, response -> {
@@ -60,10 +68,44 @@ public class GeminiService {
                         throw new RuntimeException("Gemini API Error: " + errorMsg);
                     }
 
-                    String rawText = jsonNode.path("candidates").get(0)
-                            .path("content").path("parts").get(0)
-                            .path("text").asText();
-                    return cleanJson(rawText);
+                    JsonNode candidates = jsonNode.path("candidates");
+                    if (!candidates.isArray() || candidates.isEmpty()) {
+                        String blockReason = jsonNode.path("promptFeedback").path("blockReason").asText("");
+                        if (!blockReason.isBlank()) {
+                            throw new RuntimeException("AI blocked this request (" + blockReason + "). Please rephrase your input.");
+                        }
+                        log.error("Gemini returned no candidates: {}", responseBody);
+                        throw new RuntimeException("AI returned an empty response. Please try again.");
+                    }
+
+                    JsonNode first = candidates.get(0);
+                    String finishReason = first.path("finishReason").asText("");
+                    if ("SAFETY".equalsIgnoreCase(finishReason) || "BLOCKLIST".equalsIgnoreCase(finishReason)) {
+                        throw new RuntimeException("AI blocked this request due to content policy. Please rephrase your input.");
+                    }
+
+                    JsonNode parts = first.path("content").path("parts");
+                    if (!parts.isArray() || parts.isEmpty()) {
+                        log.error("Gemini candidate had no parts: {}", responseBody);
+                        throw new RuntimeException("AI returned an empty response. Please try again.");
+                    }
+
+                    String rawText = parts.get(0).path("text").asText(null);
+                    String cleaned = cleanJson(rawText);
+
+                    // Validate we actually have usable JSON content
+                    if (cleaned == null || cleaned.isBlank() || "{}".equals(cleaned) || "null".equals(cleaned)) {
+                        log.error("Gemini text was empty after clean. Raw response: {}", responseBody);
+                        throw new RuntimeException("AI returned an empty response. Please try again.");
+                    }
+
+                    // Ensure it parses as JSON (object or array)
+                    JsonNode parsed = objectMapper.readTree(cleaned);
+                    if (parsed == null || parsed.isNull() || (parsed.isObject() && parsed.isEmpty())) {
+                        throw new RuntimeException("AI returned an empty response. Please try again.");
+                    }
+
+                    return cleaned;
 
                 } catch (RuntimeException e) {
                     throw e;
@@ -80,14 +122,11 @@ public class GeminiService {
         }
     }
 
-    private String escapeJson(String text) {
-        return text.replace("\\", "\\\\").replace("\"", "\\\"")
-                .replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
-    }
-
     private String cleanJson(String raw) {
-        if (raw == null) return "{}";
+        if (raw == null) return null;
         String trimmed = raw.trim();
+        if (trimmed.isEmpty()) return null;
+
         if (trimmed.startsWith("```")) {
             int firstNewline = trimmed.indexOf('\n');
             if (firstNewline != -1) {
@@ -97,6 +136,19 @@ public class GeminiService {
                 trimmed = trimmed.substring(0, trimmed.lastIndexOf("```")).trim();
             }
         }
+
+        // If model wrapped JSON in quotes / double-encoded, unwrap once
+        if (trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+            try {
+                String unquoted = objectMapper.readValue(trimmed, String.class);
+                if (unquoted != null && (unquoted.trim().startsWith("{") || unquoted.trim().startsWith("["))) {
+                    trimmed = unquoted.trim();
+                }
+            } catch (Exception ignored) {
+                // keep original trimmed text
+            }
+        }
+
         return trimmed;
     }
 }
