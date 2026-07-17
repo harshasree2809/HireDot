@@ -1,0 +1,14 @@
+.metadata/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Ignore environment files
+.env
+.env.local
+
+# Build artifacts
+backend/target/
+frontend/dist/
+frontend/node_modules/
