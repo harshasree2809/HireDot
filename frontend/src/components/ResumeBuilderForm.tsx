@@ -168,9 +168,7 @@ export default function ResumeBuilderForm({ onGenerated, onCancel }: Props) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <div>
-          {step === 1 ? (
-            <button onClick={onCancel} className="btn-secondary">Cancel</button>
-          ) : (
+          {step > 1 && (
             <button onClick={() => setStep(step - 1)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><ChevronLeft size={16} /> Back</button>
           )}
         </div>

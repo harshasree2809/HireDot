@@ -15,7 +15,6 @@ export default function ResumePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [versionName, setVersionName] = useState('');
-  const [mode, setMode] = useState<'upload' | 'build'>('upload');
 
   useEffect(() => {
     resumeService.getVersions().then(setVersions).catch(() => {}).finally(() => setLoading(false));
@@ -52,33 +51,18 @@ export default function ResumePage() {
         <p>Upload, parse, and manage your resume versions with AI-powered analysis</p>
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem' }}>
-        <button 
-          onClick={() => setMode('upload')}
-          className={mode === 'upload' ? 'btn-primary' : 'btn-secondary'}
-          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.875rem' }}
-        >
-          <Upload size={18} /> Upload Existing PDF
-        </button>
-        <button 
-          onClick={() => setMode('build')}
-          className={mode === 'build' ? 'btn-primary' : 'btn-secondary'}
-          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.875rem' }}
-        >
-          <Edit3 size={18} /> Build from Scratch
-        </button>
-      </div>
-
-      {mode === 'build' ? (
+      <div className="section-card" style={{ marginBottom: '1.5rem' }}>
+        <h3 style={{ fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Edit3 size={18} color="#7C3AED" /> Build New Resume
+        </h3>
         <ResumeBuilderForm 
-          onCancel={() => setMode('upload')}
+          onCancel={() => {}} // Cancel is no longer needed since we only have one mode
           onGenerated={async (file) => {
             setUploading(true);
             try {
               const newVersion = await resumeService.upload(file, `Built Resume - ${new Date().toLocaleDateString()}`);
               setVersions(prev => [newVersion, ...prev]);
-              setSuccess('Resume successfully built, generated, and uploaded!');
-              setMode('upload');
+              setSuccess('Resume successfully built, generated, and saved!');
               setTimeout(() => setSuccess(null), 4000);
             } catch (err: any) {
               setError(getErrorMessage(err));
@@ -87,47 +71,6 @@ export default function ResumePage() {
             }
           }}
         />
-      ) : (
-        <div className="section-card">
-          <h3 style={{ fontWeight: 700, marginBottom: '1rem' }}>Upload New Resume</h3>
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Version Name (optional)</label>
-          <input className="input-field" value={versionName} onChange={e => setVersionName(e.target.value)} placeholder="e.g. Google SWE Resume v3, Product Manager Resume..." style={{ maxWidth: '480px' }} />
-        </div>
-
-        <div
-          {...getRootProps()}
-          style={{
-            border: `2px dashed ${isDragActive ? '#7C3AED' : 'rgba(255,255,255,0.15)'}`,
-            borderRadius: '14px',
-            padding: '3rem 2rem',
-            textAlign: 'center',
-            cursor: uploading ? 'not-allowed' : 'pointer',
-            background: isDragActive ? 'rgba(124,58,237,0.08)' : 'rgba(255,255,255,0.02)',
-            transition: 'all 0.2s',
-          }}
-        >
-          <input {...getInputProps()} />
-          {uploading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-              <Loader2 size={40} color="#7C3AED" style={{ animation: 'spin 1s linear infinite' }} />
-              <div>
-                <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Uploading & Parsing Resume...</p>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Extracting text with Apache PDFBox</p>
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.875rem' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: isDragActive ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s' }}>
-                <Upload size={24} color={isDragActive ? '#A78BFA' : 'var(--text-muted)'} />
-              </div>
-              <div>
-                <p style={{ fontWeight: 700, marginBottom: '0.375rem' }}>{isDragActive ? 'Drop your PDF here!' : 'Drag & drop your resume PDF'}</p>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>or <span style={{ color: '#A78BFA', fontWeight: 600 }}>click to browse</span> • PDF only • Max 10MB</p>
-              </div>
-            </div>
-          )}
-        </div>
 
         {error && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '0.875rem', color: '#FCA5A5', fontSize: '0.875rem', marginTop: '1rem' }}>
@@ -140,7 +83,6 @@ export default function ResumePage() {
           </motion.div>
         )}
       </div>
-      )}
 
       {/* Versions List */}
       <div className="section-card">

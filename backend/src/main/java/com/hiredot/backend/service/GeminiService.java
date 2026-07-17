@@ -57,9 +57,10 @@ public class GeminiService {
                         throw new RuntimeException("Gemini API Error: " + errorMsg);
                     }
 
-                    return jsonNode.path("candidates").get(0)
+                    String rawText = jsonNode.path("candidates").get(0)
                             .path("content").path("parts").get(0)
                             .path("text").asText();
+                    return cleanJson(rawText);
 
                 } catch (RuntimeException e) {
                     throw e;
@@ -79,5 +80,20 @@ public class GeminiService {
     private String escapeJson(String text) {
         return text.replace("\\", "\\\\").replace("\"", "\\\"")
                 .replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
+    }
+
+    private String cleanJson(String raw) {
+        if (raw == null) return "{}";
+        String trimmed = raw.trim();
+        if (trimmed.startsWith("```")) {
+            int firstNewline = trimmed.indexOf('\n');
+            if (firstNewline != -1) {
+                trimmed = trimmed.substring(firstNewline + 1);
+            }
+            if (trimmed.endsWith("```")) {
+                trimmed = trimmed.substring(0, trimmed.lastIndexOf("```")).trim();
+            }
+        }
+        return trimmed;
     }
 }

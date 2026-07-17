@@ -30,26 +30,6 @@ public class AtsService {
                 Resume:
                 """ + resumeText + "\n\nJob Description:\n" + jobDescription +
                 "\n\nIMPORTANT: Respond with ONLY valid JSON. No markdown, no code fences, no explanation - just the raw JSON object.";
-        String raw = geminiService.generateContent(prompt);
-        return cleanJson(raw);
-    }
-
-    /**
-     * Strips markdown code fences if the AI returns ```json ... ``` wrapped content.
-     */
-    private String cleanJson(String raw) {
-        if (raw == null) return "{}";
-        String trimmed = raw.trim();
-        // Remove ```json or ``` wrappers
-        if (trimmed.startsWith("```")) {
-            int firstNewline = trimmed.indexOf('\n');
-            if (firstNewline != -1) {
-                trimmed = trimmed.substring(firstNewline + 1);
-            }
-            if (trimmed.endsWith("```")) {
-                trimmed = trimmed.substring(0, trimmed.lastIndexOf("```")).trim();
-            }
-        }
-        return trimmed;
+        return geminiService.generateContent(prompt);
     }
 }
