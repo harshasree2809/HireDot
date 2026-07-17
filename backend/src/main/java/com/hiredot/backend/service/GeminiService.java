@@ -47,16 +47,28 @@ public class GeminiService {
                 log.debug("OpenRouter response: {}", responseBody);
                 try {
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
+                    
+                    // Check if OpenRouter returned an error (e.g. invalid API key, out of credits)
+                    if (jsonNode.has("error")) {
+                        String errorMsg = jsonNode.path("error").path("message").asText();
+                        log.error("OpenRouter API Error: {}", errorMsg);
+                        throw new RuntimeException("AI Model Error: " + errorMsg);
+                    }
+                    
                     return jsonNode.path("choices").get(0)
                             .path("message").path("content").asText();
+                } catch (RuntimeException e) {
+                    throw e; // Rethrow the AI Model Error so it reaches the frontend
                 } catch (Exception e) {
                     log.error("Error parsing OpenRouter response: {}", responseBody, e);
-                    return "I'm having trouble processing your request. Please try again.";
+                    throw new RuntimeException("I'm having trouble processing your request. Please try again.");
                 }
             });
+        } catch (RuntimeException e) {
+            throw e; // Rethrow so it bubbles up
         } catch (Exception e) {
             log.error("Error calling OpenRouter API", e);
-            return "AI service is temporarily unavailable. Please try again later.";
+            throw new RuntimeException("AI service is temporarily unavailable. Please try again later.");
         }
     }
 
