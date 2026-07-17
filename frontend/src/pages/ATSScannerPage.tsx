@@ -28,8 +28,9 @@ export default function ATSScannerPage() {
     try {
       const data = await atsService.analyze(resumeText, jobDescription);
       setResult(data);
-    } catch {
-      setError('Analysis failed. Please check your connection and try again.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Analysis failed. Please check your connection and try again.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
