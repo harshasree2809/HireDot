@@ -17,38 +17,45 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GeminiService {
 
-    @Value("${gemini.api.key}")
+    @Value("${openrouter.api.key}")
     private String apiKey;
 
-    @Value("${gemini.api.url}")
+    @Value("${openrouter.api.url}")
     private String apiUrl;
+
+    @Value("${openrouter.model}")
+    private String model;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public String generateContent(String prompt) {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            String url = apiUrl + "?key=" + apiKey;
-            HttpPost request = new HttpPost(url);
+            HttpPost request = new HttpPost(apiUrl);
             request.setHeader("Content-Type", "application/json");
+            request.setHeader("Authorization", "Bearer " + apiKey);
+            request.setHeader("HTTP-Referer", "https://hiredot.vercel.app");
+            request.setHeader("X-Title", "HireDot");
 
-            String body = "{\"contents\":[{\"parts\":[{\"text\":\"" + escapeJson(prompt) + "\"}]}]}";
+            String body = "{" +
+                    "\"model\":\"" + model + "\"," +
+                    "\"messages\":[{\"role\":\"user\",\"content\":\"" + escapeJson(prompt) + "\"}]" +
+                    "}";
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
 
             return httpClient.execute(request, response -> {
                 String responseBody = new String(response.getEntity().getContent().readAllBytes());
-                log.debug("Gemini response: {}", responseBody);
+                log.debug("OpenRouter response: {}", responseBody);
                 try {
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
-                    return jsonNode.path("candidates").get(0)
-                            .path("content").path("parts").get(0)
-                            .path("text").asText();
+                    return jsonNode.path("choices").get(0)
+                            .path("message").path("content").asText();
                 } catch (Exception e) {
-                    log.error("Error parsing Gemini response", e);
+                    log.error("Error parsing OpenRouter response: {}", responseBody, e);
                     return "I'm having trouble processing your request. Please try again.";
                 }
             });
         } catch (Exception e) {
-            log.error("Error calling Gemini API", e);
+            log.error("Error calling OpenRouter API", e);
             return "AI service is temporarily unavailable. Please try again later.";
         }
     }
