@@ -20,9 +20,9 @@ public class GeminiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    // Model: gemini-1.5-flash — FREE, 1500 requests/day, no credit card needed
+    // Model: gemini-2.5-flash — FREE, 1500 requests/day, no credit card needed
     private static final String API_URL =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -32,7 +32,10 @@ public class GeminiService {
             HttpPost request = new HttpPost(url);
             request.setHeader("Content-Type", "application/json");
 
-            String body = "{\"contents\":[{\"parts\":[{\"text\":\"" + escapeJson(prompt) + "\"}]}]}";
+            String body = "{" +
+                    "\"contents\":[{\"parts\":[{\"text\":\"" + escapeJson(prompt) + "\"}]}]," +
+                    "\"generationConfig\": {\"responseMimeType\": \"application/json\"}" +
+                    "}";
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
 
             return httpClient.execute(request, response -> {
