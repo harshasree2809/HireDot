@@ -4,12 +4,12 @@ import com.hiredot.backend.dto.request.LoginRequest;
 import com.hiredot.backend.dto.request.RegisterRequest;
 import com.hiredot.backend.dto.response.AuthResponse;
 import com.hiredot.backend.service.AuthService;
-import com.hiredot.backend.service.GeminiService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -18,17 +18,16 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
-    private final GeminiService geminiService;
 
-    /** Public status check (works even before /api/health is deployed). */
+    /** Public status check — no Gemini dependency so it always works after deploy. */
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> status() {
-        return ResponseEntity.ok(Map.of(
-                "status", "ok",
-                "service", "hiredot-backend",
-                "geminiModel", geminiService.getModelName(),
-                "build", "2026-07-18-flash-latest"
-        ));
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("status", "ok");
+        body.put("service", "hiredot-backend");
+        body.put("geminiModel", "gemini-flash-latest");
+        body.put("build", "2026-07-18-flash-latest-v3");
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping("/register")
