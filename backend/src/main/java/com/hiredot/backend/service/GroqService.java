@@ -62,7 +62,6 @@ public class GroqService {
             
             // If jsonMode is required by Groq, prompt must explicitly mention JSON
             if (jsonMode) {
-                message.put("text", prompt + "\n\nIMPORTANT: Return ONLY valid JSON.");
                 message.put("content", prompt + "\n\nIMPORTANT: Return ONLY valid JSON.");
                 ObjectNode format = root.putObject("response_format");
                 format.put("type", "json_object");
