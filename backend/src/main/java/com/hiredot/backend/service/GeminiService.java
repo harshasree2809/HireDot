@@ -38,6 +38,7 @@ public class GeminiService {
 
             String body = "{" +
                     "\"model\":\"" + model + "\"," +
+                    "\"max_tokens\":4096," +
                     "\"messages\":[{\"role\":\"user\",\"content\":\"" + escapeJson(prompt) + "\"}]" +
                     "}";
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
