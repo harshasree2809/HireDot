@@ -29,7 +29,7 @@ export default function ATSScannerPage() {
       const data = await atsService.analyze(resumeText, jobDescription);
       setResult(data);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || 'Analysis failed. Please check your connection and try again.';
+      const msg = err?.response?.data?.message || err?.message || 'Analysis failed. The AI server may be waking up — please wait 30 seconds and try again.';
       setError(msg);
     } finally {
       setLoading(false);
@@ -106,7 +106,7 @@ export default function ATSScannerPage() {
         className="btn-primary"
         style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', alignSelf: 'flex-start', padding: '0.75rem 2rem', fontSize: '0.9375rem' }}
       >
-        {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Analyzing...</> : <><Target size={18} /> Analyze ATS Score</>}
+        {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Analyzing (may take 30s)...</> : <><Target size={18} /> Analyze ATS Score</>}
       </button>
 
       <AnimatePresence>

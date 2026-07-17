@@ -27,8 +27,9 @@ export default function InterviewPrepPage() {
     try {
       const data = await interviewService.generate({ jobTitle, jobDescription, difficulty, questionCount });
       setQuestions(data);
-    } catch {
-      setError('Failed to generate questions. Please try again.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Failed to generate questions. The AI server may be waking up — please try again in 30 seconds.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -71,7 +72,7 @@ export default function InterviewPrepPage() {
         </div>
         {error && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '0.75rem', color: '#FCA5A5', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}><AlertCircle size={16} /> {error}</div>}
         <button onClick={handleGenerate} disabled={loading || !jobTitle.trim()} className="btn-primary" style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem', fontSize: '0.9375rem' }}>
-          {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Generating...</> : <><MessageSquare size={18} /> Generate Questions</>}
+          {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Generating (may take 30s)...</> : <><MessageSquare size={18} /> Generate Questions</>}
         </button>
       </div>
 

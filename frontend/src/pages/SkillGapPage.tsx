@@ -39,8 +39,9 @@ export default function SkillGapPage() {
     try {
       const data = await skillService.analyzeGap(jobDescription, userSkills);
       setResult(data);
-    } catch {
-      setError('Analysis failed. Please try again.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Analysis failed. The AI server may be waking up — please try again in 30 seconds.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -94,7 +95,7 @@ export default function SkillGapPage() {
       {error && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '0.875rem', color: '#FCA5A5', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><AlertCircle size={16} /> {error}</div>}
 
       <button onClick={handleAnalyze} disabled={loading || !jobDescription.trim() || userSkills.length === 0} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', alignSelf: 'flex-start', padding: '0.75rem 2rem', fontSize: '0.9375rem' }}>
-        {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Analyzing...</> : <><TrendingUp size={18} /> Analyze Skill Gap</>}
+        {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Analyzing (may take 30s)...</> : <><TrendingUp size={18} /> Analyze Skill Gap</>}
       </button>
 
       <AnimatePresence>

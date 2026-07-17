@@ -25,8 +25,9 @@ export default function JobMatchPage() {
     try {
       const data = await jobService.match(resumeText, jobDescription);
       setResult(data);
-    } catch {
-      setError('Job matching failed. Please try again.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Job matching failed. The AI server may be waking up — please try again in 30 seconds.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -38,8 +39,9 @@ export default function JobMatchPage() {
     try {
       const data = await jobService.analyze(jobDescription);
       setAnalyzedJD(data as Record<string, unknown>);
-    } catch {
-      setError('JD analysis failed.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'JD analysis failed. Please try again.';
+      setError(msg);
     } finally {
       setAnalyzingJD(false);
     }
@@ -100,7 +102,7 @@ export default function JobMatchPage() {
       </AnimatePresence>
 
       <button onClick={handleMatch} disabled={loading || !resumeText.trim() || !jobDescription.trim()} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', alignSelf: 'flex-start', padding: '0.75rem 2rem', fontSize: '0.9375rem' }}>
-        {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Matching...</> : <><Briefcase size={18} /> Analyze Job Match</>}
+        {loading ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Matching (may take 30s)...</> : <><Briefcase size={18} /> Analyze Job Match</>}
       </button>
 
       <AnimatePresence>
