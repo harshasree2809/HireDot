@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
-import { FileText, Upload, Loader2, CheckCircle, ExternalLink, Clock, AlertCircle } from 'lucide-react';
+import { FileText, Upload, Loader2, CheckCircle, ExternalLink, Clock, AlertCircle, Edit3 } from 'lucide-react';
 import { resumeService } from '../services/resumeService';
 import type { ResumeVersion } from '../types';
 import { formatRelativeTime } from '../lib/utils';
+import ResumeBuilderForm from '../components/ResumeBuilderForm';
 
 export default function ResumePage() {
   const [versions, setVersions] = useState<ResumeVersion[]>([]);
@@ -13,6 +14,7 @@ export default function ResumePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [versionName, setVersionName] = useState('');
+  const [mode, setMode] = useState<'upload' | 'build'>('upload');
 
   useEffect(() => {
     resumeService.getVersions().then(setVersions).catch(() => {}).finally(() => setLoading(false));
@@ -49,9 +51,44 @@ export default function ResumePage() {
         <p>Upload, parse, and manage your resume versions with AI-powered analysis</p>
       </div>
 
-      {/* Upload Zone */}
-      <div className="section-card">
-        <h3 style={{ fontWeight: 700, marginBottom: '1rem' }}>Upload New Resume</h3>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem' }}>
+        <button 
+          onClick={() => setMode('upload')}
+          className={mode === 'upload' ? 'btn-primary' : 'btn-secondary'}
+          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.875rem' }}
+        >
+          <Upload size={18} /> Upload Existing PDF
+        </button>
+        <button 
+          onClick={() => setMode('build')}
+          className={mode === 'build' ? 'btn-primary' : 'btn-secondary'}
+          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.875rem' }}
+        >
+          <Edit3 size={18} /> Build from Scratch
+        </button>
+      </div>
+
+      {mode === 'build' ? (
+        <ResumeBuilderForm 
+          onCancel={() => setMode('upload')}
+          onGenerated={async (file) => {
+            setUploading(true);
+            try {
+              const newVersion = await resumeService.upload(file, `Built Resume - ${new Date().toLocaleDateString()}`);
+              setVersions(prev => [newVersion, ...prev]);
+              setSuccess('Resume successfully built, generated, and uploaded!');
+              setMode('upload');
+              setTimeout(() => setSuccess(null), 4000);
+            } catch (e) {
+              setError('Failed to upload the generated resume.');
+            } finally {
+              setUploading(false);
+            }
+          }}
+        />
+      ) : (
+        <div className="section-card">
+          <h3 style={{ fontWeight: 700, marginBottom: '1rem' }}>Upload New Resume</h3>
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Version Name (optional)</label>
           <input className="input-field" value={versionName} onChange={e => setVersionName(e.target.value)} placeholder="e.g. Google SWE Resume v3, Product Manager Resume..." style={{ maxWidth: '480px' }} />
@@ -102,6 +139,7 @@ export default function ResumePage() {
           </motion.div>
         )}
       </div>
+      )}
 
       {/* Versions List */}
       <div className="section-card">
