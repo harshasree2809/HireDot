@@ -21,9 +21,12 @@ public class GeminiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    // Model: gemini-2.5-flash — FREE, 1500 requests/day, no credit card needed
-    private static final String API_URL =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    // gemini-1.5-flash is shut down — use gemini-2.5-flash (override via GEMINI_MODEL)
+    @Value("${gemini.model:gemini-2.5-flash}")
+    private String model;
+
+    private static final String API_BASE =
+        "https://generativelanguage.googleapis.com/v1beta/models/";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -32,10 +35,18 @@ public class GeminiService {
             throw new RuntimeException("GEMINI_API_KEY is missing. Add your Google AI Studio key to the backend environment.");
         }
 
+        String modelName = (model == null || model.isBlank()) ? "gemini-2.5-flash" : model.trim();
+        // Guard against deprecated models still set in Render env
+        if (modelName.contains("1.5")) {
+            log.warn("Deprecated Gemini model '{}' configured — falling back to gemini-2.5-flash", modelName);
+            modelName = "gemini-2.5-flash";
+        }
+
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            String url = API_URL + "?key=" + apiKey.trim();
+            String url = API_BASE + modelName + ":generateContent?key=" + apiKey.trim();
             HttpPost request = new HttpPost(url);
             request.setHeader("Content-Type", "application/json");
+            log.debug("Calling Gemini model: {}", modelName);
 
             ObjectNode root = objectMapper.createObjectNode();
             ObjectNode content = root.putArray("contents").addObject();
@@ -63,6 +74,9 @@ public class GeminiService {
                         if (errorCode == 429) {
                             throw new RuntimeException("AI quota exceeded. You have hit the free daily limit (1500 requests). Please try again tomorrow.");
                         } else if (errorCode == 400 || errorCode == 401 || errorCode == 403) {
+                            if (errorMsg != null && errorMsg.toLowerCase().contains("not found") && errorMsg.toLowerCase().contains("model")) {
+                                throw new RuntimeException("Gemini model not found. Set GEMINI_MODEL=gemini-2.5-flash on Render (gemini-1.5-flash is shut down).");
+                            }
                             throw new RuntimeException("Invalid Gemini API Key. Please check GEMINI_API_KEY on Render.");
                         }
                         throw new RuntimeException("Gemini API Error: " + errorMsg);
