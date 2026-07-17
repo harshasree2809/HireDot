@@ -6,6 +6,7 @@ import { resumeService } from '../services/resumeService';
 import type { ResumeVersion } from '../types';
 import { formatRelativeTime } from '../lib/utils';
 import ResumeBuilderForm from '../components/ResumeBuilderForm';
+import { getErrorMessage } from '../lib/errorHandler';
 
 export default function ResumePage() {
   const [versions, setVersions] = useState<ResumeVersion[]>([]);
@@ -33,8 +34,8 @@ export default function ResumePage() {
       setSuccess('Resume uploaded and parsed successfully!');
       setVersionName('');
       setTimeout(() => setSuccess(null), 4000);
-    } catch {
-      setError('Upload failed. Please ensure your file is a valid PDF and try again.');
+    } catch (err: any) {
+      setError(getErrorMessage(err));
     } finally {
       setUploading(false);
     }
@@ -79,8 +80,8 @@ export default function ResumePage() {
               setSuccess('Resume successfully built, generated, and uploaded!');
               setMode('upload');
               setTimeout(() => setSuccess(null), 4000);
-            } catch (e) {
-              setError('Failed to upload the generated resume.');
+            } catch (err: any) {
+              setError(getErrorMessage(err));
             } finally {
               setUploading(false);
             }

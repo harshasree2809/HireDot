@@ -5,6 +5,7 @@ import { atsService } from '../services/atsService';
 import { resumeService } from '../services/resumeService';
 import type { ATSResult } from '../types';
 import { getScoreColor, getScoreLabel } from '../lib/utils';
+import { getErrorMessage } from '../lib/errorHandler';
 
 export default function ATSScannerPage() {
   const [resumeText, setResumeText] = useState('');
@@ -29,8 +30,7 @@ export default function ATSScannerPage() {
       const data = await atsService.analyze(resumeText, jobDescription);
       setResult(data);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || 'Analysis failed. The AI server may be waking up — please wait 30 seconds and try again.';
-      setError(msg);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -41,8 +41,8 @@ export default function ATSScannerPage() {
     try {
       const tailored = await resumeService.tailor(resumeText, jobDescription);
       setTailoredResume(tailored);
-    } catch {
-      setError('Tailoring failed. Please try again.');
+    } catch (err: any) {
+      setError(getErrorMessage(err));
     } finally {
       setTailoring(false);
     }

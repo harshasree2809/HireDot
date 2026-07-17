@@ -4,6 +4,7 @@ import { TrendingUp, Loader2, AlertCircle, Plus, X, ExternalLink, Clock, BookOpe
 import { skillService } from '../services/skillService';
 import type { SkillGapResult } from '../types';
 import { getImportanceColor } from '../lib/utils';
+import { getErrorMessage } from '../lib/errorHandler';
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from 'recharts';
 
 export default function SkillGapPage() {
@@ -40,8 +41,7 @@ export default function SkillGapPage() {
       const data = await skillService.analyzeGap(jobDescription, userSkills);
       setResult(data);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || 'Analysis failed. The AI server may be waking up — please try again in 30 seconds.';
-      setError(msg);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

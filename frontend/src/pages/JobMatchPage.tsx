@@ -4,6 +4,7 @@ import { Briefcase, Loader2, CheckCircle, XCircle, AlertCircle, TrendingUp } fro
 import { jobService } from '../services/jobService';
 import type { JobMatchResult } from '../types';
 import { getScoreColor, getScoreLabel } from '../lib/utils';
+import { getErrorMessage } from '../lib/errorHandler';
 
 export default function JobMatchPage() {
   const [resumeText, setResumeText] = useState('');
@@ -26,8 +27,7 @@ export default function JobMatchPage() {
       const data = await jobService.match(resumeText, jobDescription);
       setResult(data);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || 'Job matching failed. The AI server may be waking up — please try again in 30 seconds.';
-      setError(msg);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -40,8 +40,7 @@ export default function JobMatchPage() {
       const data = await jobService.analyze(jobDescription);
       setAnalyzedJD(data as Record<string, unknown>);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || 'JD analysis failed. Please try again.';
-      setError(msg);
+      setError(getErrorMessage(err));
     } finally {
       setAnalyzingJD(false);
     }

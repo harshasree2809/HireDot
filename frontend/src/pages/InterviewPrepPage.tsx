@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Loader2, AlertCircle, ChevronDown, ChevronUp, Lightbulb } from 'lucide-react';
 import { interviewService } from '../services/interviewService';
 import type { InterviewQuestion } from '../types';
+import { getErrorMessage } from '../lib/errorHandler';
 
 const difficultyColors: Record<string, string> = { EASY: '#10B981', MEDIUM: '#F59E0B', HARD: '#EF4444' };
 const categoryColors: Record<string, string> = { TECHNICAL: '#7C3AED', BEHAVIORAL: '#06B6D4', SITUATIONAL: '#F59E0B', CULTURE_FIT: '#10B981' };
@@ -28,8 +29,7 @@ export default function InterviewPrepPage() {
       const data = await interviewService.generate({ jobTitle, jobDescription, difficulty, questionCount });
       setQuestions(data);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to generate questions. The AI server may be waking up — please try again in 30 seconds.';
-      setError(msg);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

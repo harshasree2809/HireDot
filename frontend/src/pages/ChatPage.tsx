@@ -4,6 +4,7 @@ import { Send, Loader2, Trash2, Bot, User, Zap } from 'lucide-react';
 import { chatService } from '../services/chatService';
 import type { ChatMessage } from '../types';
 import { formatRelativeTime } from '../lib/utils';
+import { getErrorMessage } from '../lib/errorHandler';
 
 const suggestions = [
   'How do I tailor my resume for a FAANG company?',
@@ -50,12 +51,12 @@ export default function ChatPage() {
     try {
       const aiMsg = await chatService.send(msg);
       setMessages(prev => [...prev.slice(0, -1), userMsg, aiMsg]);
-    } catch {
+    } catch (err: any) {
       const errMsg: ChatMessage = {
         id: Date.now().toString() + '_err',
         userId: '',
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: getErrorMessage(err),
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, errMsg]);
