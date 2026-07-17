@@ -21,9 +21,9 @@ public class GeminiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    // Always use gemini-2.5-flash — gemini-1.5-flash is permanently shut down by Google.
-    // Do NOT read model from env: Render still had GEMINI_MODEL=gemini-1.5-flash set.
-    private static final String MODEL = "gemini-2.5-flash";
+    // gemini-1.5-flash is shut down; gemini-2.5-flash is blocked for many new API keys.
+    // gemini-flash-latest always points at Google's current Flash model.
+    private static final String MODEL = "gemini-flash-latest";
 
     private static final String API_BASE =
         "https://generativelanguage.googleapis.com/v1beta/models/";
@@ -35,7 +35,17 @@ public class GeminiService {
         return MODEL;
     }
 
+    /** JSON-mode call for Job Match / ATS / Skill Gap / Interview. */
     public String generateContent(String prompt) {
+        return generateContent(prompt, true);
+    }
+
+    /** Plain-text call for AI Coach chat and resume tailor. */
+    public String generateText(String prompt) {
+        return generateContent(prompt, false);
+    }
+
+    public String generateContent(String prompt, boolean jsonMode) {
         if (apiKey == null || apiKey.isBlank() || apiKey.startsWith("your-gemini") || apiKey.startsWith("your_gemini")) {
             throw new RuntimeException("GEMINI_API_KEY is missing. Add your Google AI Studio key to the backend environment.");
         }
@@ -44,13 +54,15 @@ public class GeminiService {
             String url = API_BASE + MODEL + ":generateContent?key=" + apiKey.trim();
             HttpPost request = new HttpPost(url);
             request.setHeader("Content-Type", "application/json");
-            log.info("Calling Gemini model: {}", MODEL);
+            log.info("Calling Gemini model: {} (jsonMode={})", MODEL, jsonMode);
 
             ObjectNode root = objectMapper.createObjectNode();
             ObjectNode content = root.putArray("contents").addObject();
             content.putArray("parts").addObject().put("text", prompt);
-            ObjectNode generationConfig = root.putObject("generationConfig");
-            generationConfig.put("responseMimeType", "application/json");
+            if (jsonMode) {
+                ObjectNode generationConfig = root.putObject("generationConfig");
+                generationConfig.put("responseMimeType", "application/json");
+            }
 
             String body = objectMapper.writeValueAsString(root);
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
@@ -70,12 +82,15 @@ public class GeminiService {
                         log.error("Gemini API Error {}: {}", errorCode, errorMsg);
 
                         if (errorCode == 429) {
-                            throw new RuntimeException("AI quota exceeded. You have hit the free daily limit (1500 requests). Please try again tomorrow.");
+                            throw new RuntimeException("AI quota exceeded. You have hit the free daily limit. Please try again later, or set up billing in Google AI Studio.");
                         } else if (errorCode == 400 || errorCode == 401 || errorCode == 403) {
                             if (errorMsg != null && errorMsg.toLowerCase().contains("not found") && errorMsg.toLowerCase().contains("model")) {
-                                throw new RuntimeException("Gemini model not found. Set GEMINI_MODEL=gemini-2.5-flash on Render (gemini-1.5-flash is shut down).");
+                                throw new RuntimeException("Gemini model not found. Backend must use gemini-flash-latest (not gemini-1.5-flash / gemini-2.5-flash for new keys).");
                             }
-                            throw new RuntimeException("Invalid Gemini API Key. Please check GEMINI_API_KEY on Render.");
+                            if (errorMsg != null && errorMsg.toLowerCase().contains("api key")) {
+                                throw new RuntimeException("Invalid Gemini API Key. Create a key at https://aistudio.google.com/apikey and set GEMINI_API_KEY on Render.");
+                            }
+                            throw new RuntimeException("Gemini API Error: " + errorMsg);
                         }
                         throw new RuntimeException("Gemini API Error: " + errorMsg);
                     }
@@ -102,7 +117,24 @@ public class GeminiService {
                         throw new RuntimeException("AI returned an empty response. Please try again.");
                     }
 
-                    String rawText = parts.get(0).path("text").asText(null);
+                    // Prefer the last text part (some models prepend thought parts)
+                    String rawText = null;
+                    for (JsonNode part : parts) {
+                        if (part.has("text") && !part.path("text").asText("").isBlank()) {
+                            rawText = part.path("text").asText();
+                        }
+                    }
+                    if (rawText == null) {
+                        rawText = parts.get(0).path("text").asText(null);
+                    }
+
+                    if (!jsonMode) {
+                        if (rawText == null || rawText.isBlank()) {
+                            throw new RuntimeException("AI returned an empty response. Please try again.");
+                        }
+                        return rawText.trim();
+                    }
+
                     String cleaned = cleanJson(rawText);
 
                     // Validate we actually have usable JSON content

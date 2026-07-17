@@ -37,7 +37,7 @@ public class ChatService {
         }
         contextBuilder.append("user: ").append(userMessage);
 
-        String aiResponse = geminiService.generateContent(contextBuilder.toString());
+        String aiResponse = geminiService.generateText(contextBuilder.toString());
 
         // Save AI response
         ChatMessage aiMsg = ChatMessage.builder()

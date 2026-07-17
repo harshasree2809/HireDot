@@ -49,6 +49,6 @@ public class ResumeService {
                 Resume:
                 """ + resumeText + "\n\nJob Description:\n" + jobDescription +
                 "\n\nProvide the tailored resume in a clean, professional format.";
-        return geminiService.generateContent(prompt);
+        return geminiService.generateText(prompt);
     }
 }

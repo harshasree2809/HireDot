@@ -61,7 +61,7 @@ export function getErrorMessage(err: any): string {
       return '💳 AI quota/credits issue. Check Google AI Studio usage limits, or set up billing if you exceeded the free tier.';
     }
     if (lower.includes('model') && lower.includes('not found')) {
-      return '🤖 AI Model not found. Confirm the backend uses a valid Gemini model (e.g. gemini-2.5-flash).';
+      return '🤖 AI Model not found. Backend must use gemini-flash-latest. Redeploy the backend on Render.';
     }
     if (lower.includes('empty response') || lower.includes('incomplete') || lower.includes('could not parse')) {
       return `⚠️ ${serverMsg}`;

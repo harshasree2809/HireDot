@@ -22,7 +22,7 @@ public class HealthController {
                 "status", "ok",
                 "service", "hiredot-backend",
                 "geminiModel", geminiService.getModelName(),
-                "build", "2026-07-18-model-fix"
+                "build", "2026-07-18-flash-latest"
         ));
     }
 }
