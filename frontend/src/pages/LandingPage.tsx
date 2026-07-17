@@ -16,7 +16,7 @@ const features = [
   {
     icon: Brain,
     title: 'AI Resume Tailoring',
-    description: 'Our Gemini AI rewrites your resume for each job, matching tone, keywords, and requirements perfectly.',
+    description: 'Our Groq AI rewrites your resume for each job, matching tone, keywords, and requirements perfectly.',
     color: '#06B6D4',
     glow: 'rgba(6,182,212,0.3)',
   },
@@ -153,7 +153,7 @@ export default function LandingPage() {
             }}
           >
             <Sparkles size={13} />
-            Powered by Google Gemini AI
+            Powered by Groq AI
           </motion.div>
 
           <h1 style={{
@@ -425,7 +425,7 @@ export default function LandingPage() {
             HireDot
           </span>
         </div>
-        <p>© 2025 HireDot by SpaceBits. Built with ❤️ and Gemini AI.</p>
+        <p>© 2025 HireDot by SpaceBits. Built with ❤️ and Groq AI.</p>
       </footer>
     </div>
   );

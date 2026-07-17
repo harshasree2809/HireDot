@@ -1,6 +1,6 @@
 package com.hiredot.backend.controller;
 
-import com.hiredot.backend.service.GeminiService;
+import com.hiredot.backend.service.GroqService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,14 +14,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class HealthController {
 
-    private final GeminiService geminiService;
+    private final GroqService groqService;
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {
         return ResponseEntity.ok(Map.of(
                 "status", "ok",
                 "service", "hiredot-backend",
-                "geminiModel", geminiService.getModelName(),
+                "aiModel", groqService.getModelName(),
                 "build", "2026-07-18-flash-latest"
         ));
     }

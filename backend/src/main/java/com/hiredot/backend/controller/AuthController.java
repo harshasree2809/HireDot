@@ -19,13 +19,13 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /** Public status check — no Gemini dependency so it always works after deploy. */
+    /** Public status check — no AI dependency so it always works after deploy. */
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> status() {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("status", "ok");
         body.put("service", "hiredot-backend");
-        body.put("geminiModel", "gemini-flash-latest");
+        body.put("aiModel", "Groq llama-3.3-70b-versatile");
         body.put("build", "2026-07-18-flash-latest-v3");
         return ResponseEntity.ok(body);
     }

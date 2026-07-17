@@ -91,7 +91,7 @@ function unwrapNested(obj: Record<string, unknown>): Record<string, unknown> {
   return obj;
 }
 
-/** Normalize Job Match fields when Gemini uses alternate key names */
+/** Normalize Job Match fields when AI uses alternate key names */
 export function normalizeJobMatch(data: Record<string, unknown>): Record<string, unknown> {
   const score = firstNumber(data, [
     'matchScore',
@@ -140,7 +140,7 @@ export function normalizeJobMatch(data: Record<string, unknown>): Record<string,
   };
 }
 
-/** Normalize ATS fields when Gemini uses alternate key names */
+/** Normalize ATS fields when AI uses alternate key names */
 export function normalizeAtsResult(data: Record<string, unknown>): Record<string, unknown> {
   const sectionRaw =
     (firstValue(data, ['sectionScores', 'section_scores', 'sections']) as Record<

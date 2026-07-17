@@ -87,7 +87,7 @@ export default function ChatPage() {
             </div>
             AI Career Coach
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.25rem' }}>Powered by Gemini AI — Your personal career advisor, 24/7</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.25rem' }}>Powered by Groq AI — Your personal career advisor, 24/7</p>
         </div>
         {messages.length > 0 && (
           <button onClick={handleClear} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', color: '#FCA5A5', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>

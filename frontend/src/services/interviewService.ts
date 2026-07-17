@@ -12,7 +12,7 @@ export const interviewService = {
     const res = await api.post('/interview/generate', params);
     const raw = res.data.result;
 
-    // Gemini sometimes returns a bare array instead of { questions: [...] }
+    // AI sometimes returns a bare array instead of { questions: [...] }
     if (Array.isArray(raw)) {
       if (raw.length === 0) throw new Error('AI returned no interview questions. Please try again.');
       return raw as InterviewQuestion[];

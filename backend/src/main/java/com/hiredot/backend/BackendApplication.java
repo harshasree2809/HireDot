@@ -19,7 +19,7 @@ public class BackendApplication {
 	public void logStartupBanner() {
 		log.info("======================================================");
 		log.info(" HireDot backend started");
-		log.info(" Gemini model = gemini-flash-latest");
+		log.info(" AI Model = Groq llama-3.3-70b-versatile");
 		log.info(" build = 2026-07-18-flash-latest-v3");
 		log.info("======================================================");
 	}
