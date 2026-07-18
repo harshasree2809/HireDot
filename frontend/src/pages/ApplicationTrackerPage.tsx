@@ -223,6 +223,8 @@ export default function ApplicationTrackerPage() {
                 borderRadius: '20px', padding: '2rem',
                 width: '100%', maxWidth: '480px',
                 boxShadow: '0 40px 80px rgba(0,0,0,0.5)',
+                maxHeight: '90vh',
+                overflowY: 'auto'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
