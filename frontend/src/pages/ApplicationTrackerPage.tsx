@@ -77,7 +77,7 @@ export default function ApplicationTrackerPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', minWidth: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1, minWidth: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.375rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Application Tracker</h1>
@@ -168,7 +168,7 @@ export default function ApplicationTrackerPage() {
                     )}
 
                     <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
-                      {COLUMNS.filter(c => c.id !== col.id).slice(0, 2).map(c => (
+                      {COLUMNS.filter(c => c.id !== col.id).map(c => (
                         <button key={c.id} onClick={() => handleStatusChange(app.id, c.id)} style={{
                           background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
                           borderRadius: '6px', padding: '3px 8px', cursor: 'pointer',
