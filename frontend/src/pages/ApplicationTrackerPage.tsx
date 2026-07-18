@@ -77,10 +77,10 @@ export default function ApplicationTrackerPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', width: '100%', marginBottom: '1rem' }}>
-        <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.375rem' }}>Application Tracker</h1>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.375rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Application Tracker</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>{applications.length} applications tracked across {COLUMNS.length} stages</p>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary glow-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', padding: '0.75rem 1.5rem', fontSize: '1rem', flexShrink: 0, zIndex: 10 }}>
@@ -95,6 +95,7 @@ export default function ApplicationTrackerPage() {
         gap: '0.75rem',
         overflowX: 'auto',
         paddingBottom: '1rem',
+        width: '100%',
       }}>
         {COLUMNS.map((col) => {
           const colApps = getColumnApps(col.id);
