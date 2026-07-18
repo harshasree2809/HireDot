@@ -91,8 +91,8 @@ export default function ApplicationTrackerPage() {
       {/* Kanban Board */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${COLUMNS.length}, minmax(230px, 1fr))`,
-        gap: '1rem',
+        gridTemplateColumns: `repeat(${COLUMNS.length}, minmax(180px, 1fr))`,
+        gap: '0.75rem',
         overflowX: 'auto',
         paddingBottom: '1rem',
       }}>
@@ -101,12 +101,12 @@ export default function ApplicationTrackerPage() {
           const color = getStatusColor(col.id);
           return (
             <div key={col.id} style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: `1px solid rgba(255,255,255,0.07)`,
-              borderRadius: '14px',
-              padding: '1rem',
+              background: 'rgba(255,255,255,0.02)',
+              border: `1px solid rgba(255,255,255,0.05)`,
+              borderRadius: '12px',
+              padding: '0.75rem',
               minHeight: '400px',
-              display: 'flex', flexDirection: 'column', gap: '0.75rem',
+              display: 'flex', flexDirection: 'column', gap: '0.6rem',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
