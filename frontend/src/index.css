@@ -221,6 +221,11 @@
     color: var(--text-muted);
   }
 
+  .input-field option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
   .sidebar-item {
     display: flex;
     align-items: center;
